@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="QuoteCreationTestSuite" parallel="tests" thread-count="2">
+    <test name="CreateQuoteFunctionalTests">
+        <classes>
+            <class name="org.example.runners.QuoteTestRunner"/>
+        </classes>
+    </test>
+    <test name="CreateQuotePerformanceTests">
+        <classes>
+            <class name="org.example.runners.QuotePerformanceTestRunner"/>
+        </classes>
+    </test>
+</suite>
