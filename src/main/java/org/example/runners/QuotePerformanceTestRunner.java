@@ -16,9 +16,8 @@ import org.testng.annotations.DataProvider;
         monochrome = true
 )
 public class QuotePerformanceTestRunner extends AbstractTestNGCucumberTests {
-    // 支持并行执行（可选）
-    @Override
     @DataProvider(parallel = true)
+    @Override
     public Object[][] scenarios() {
         return super.scenarios();
     }

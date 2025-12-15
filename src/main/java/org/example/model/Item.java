@@ -16,7 +16,7 @@ public class Item {
     private double unitaryPrice;
     
     @SerializedName("discountPercentage")
-    private float discountPercentage; // Using primitive float, defaults to 0.0
+    private float discountPercentage;
     
     public String getItem() {
         return item;

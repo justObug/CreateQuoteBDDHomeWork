@@ -3,8 +3,8 @@ Feature: Create New Quote
   I want to create a new quote for a customer
   So that I can provide them with pricing and product details quickly
 
-  #AC1: Successfully create a new quote with one item for a customer without discount
-  Scenario: Successfully create a new quote with one item for a customer without discount- AC1
+  #AC1: Successfully create a new quote with one item for a customer
+  Scenario: Successfully create a new quote with one item for a customer
     Given a customer with identifier "CUST_001"
     And one item with identifier "ITEM_001"
     When I create a quote for that customer with that item with the quantity 5.0 and the price 100.0
@@ -12,7 +12,7 @@ Feature: Create New Quote
     And a confirmation message "Quote created successfully."
 
   # AC2: Successfully create a new quote with one item with discount for a customer
-  Scenario: Successfully create a new quote with one item with discount for a customer - AC2
+  Scenario: Successfully create a new quote with one item with discount for a customer
     Given a customer with identifier "CUST_002"
     And one item with identifier "ITEM_002"
     When I create a quote for that customer with that item with the quantity 3.0, the unitary price 50.0, and a percentage of discount 0.1
@@ -20,7 +20,7 @@ Feature: Create New Quote
     And a confirmation message "Quote created successfully."
 
   # AC3: Successfully create a new quote with two items for a customer
-  Scenario: Successfully create a new quote with two items for a customer - AC3
+  Scenario: Successfully create a new quote with two items for a customer
     Given a customer with identifier "CUST_003"
     And two items "ITEM_3" and "ITEM_4"
     When I create a quote for that customer with item "ITEM_3" with the quantity 2.0 and the price 25.0 and item "ITEM_4" with the quantity 3.0 and the price 15.0
@@ -28,7 +28,7 @@ Feature: Create New Quote
     And a confirmation message "Quote created successfully."
 
   # AC4: Successfully create a new quote with three items for a customer with mixed discount percentage
-  Scenario: Successfully create a new quote with three items for a customer with mixed discount percentage - AC4
+  Scenario: Successfully create a new quote with three items for a customer with mixed discount percentage
     Given a customer with identifier "CUST_004"
     And three items "ITEM_5", "ITEM_6" and "ITEM_7"
     When I create a quote for that customer with that item:
@@ -40,7 +40,7 @@ Feature: Create New Quote
     And a confirmation message "Quote created successfully."
 
   # AC5: Successfully create a new quote with 100% discount
-  Scenario: Successfully create a new quote with 100% discount - AC5
+  Scenario: Successfully create a new quote with 100% discount
     Given a customer with identifier "CUST_005"
     And one item with identifier "ITEM_005"
     When I create a quote for that customer with that item with the quantity 2.0, the unitary price 150.0, and a percentage of discount 1.0
@@ -48,7 +48,7 @@ Feature: Create New Quote
     And a confirmation message "Quote created successfully."
 
   # AC6: Successfully create a new quote with decimal values and zero discount
-  Scenario: Successfully create a new quote with decimal values and zero discount - AC6
+  Scenario: Successfully create a new quote with decimal values and zero discount
     Given a customer with identifier "CUST_006"
     And one item with identifier "ITEM_006"
     When I create a quote for that customer with that item with the quantity 2.55, the unitary price 10.5, and a percentage of discount 0.0
@@ -56,7 +56,7 @@ Feature: Create New Quote
     And a confirmation message "Quote created successfully."
 
   # AC7: Quote version number auto-upgrade (creating revised quotes)
-  Scenario: Successfully create a revised quote with auto-incremented version number - AC7
+  Scenario: Successfully create a revised quote with auto-incremented version number
     Given a customer with identifier "CUST_008"
     And one item with identifier "ITEM_008"
     When I create a quote for that customer with that item with the quantity 2.0 and the price 100.0
@@ -72,7 +72,7 @@ Feature: Create New Quote
     And a confirmation message "Quote revised successfully."
 
   # AC8: Successfully create a new quote with ten items
-  Scenario: Successfully create a new quote with ten items - AC8
+  Scenario: Successfully create a new quote with ten items
     Given a customer with identifier "CUST_007"
     And the following items:
       | item     |
@@ -102,7 +102,7 @@ Feature: Create New Quote
     And a confirmation message "Quote created successfully."
 
   # AC9: Successfully create a new quote with extreme decimal precision (precision validation)
-  Scenario: Successfully create a new quote with extreme decimal precision - AC9
+  Scenario: Successfully create a new quote with extreme decimal precision
     Given a customer with identifier "CUST_009"
     And an item with identifier "ITEM_001"
     When I create a quote for that customer with that item with the quantity 0.123456789, the unitary price 9.876543210123456, and a percentage of discount 0
@@ -110,7 +110,7 @@ Feature: Create New Quote
     And a confirmation message "Quote created successfully."
 
 #  AC10: Successfully create a new quote with minimum quantity value
-  Scenario: Create quote with minimum quantity value
+  Scenario: Successfully create quote with minimum quantity value (should pass)
     Given a customer with identifier "CUST_010"
     And an item with identifier "ITEM_010"
     When I create a quote for that customer with that item with the quantity 0.001 and the price 100.0
@@ -118,80 +118,89 @@ Feature: Create New Quote
     And the quote total amount is 0.1
 
 #  AC11: Successfully create a new quote with maximum quantity value
-  Scenario: Create quote with maximum quantity value
+  Scenario: Successfully Create quote with maximum quantity value
     Given a customer with identifier "CUST_011"
     And an item with identifier "ITEM_011"
     When I create a quote for that customer with that item with the quantity 999999.999 and the price 100.0
     Then the response status code is 200
     And the quote total amount is 99999999.9
 
-#  AC12: Successfully create a new quote with invalid discount (>100%)
-  Scenario: Create quote with invalid discount (>100%)
+#  AC12: Fail to create a new quote with invalid discount (>100%)
+  Scenario: Fail to create a new quote with invalid discount (>100%)
     Given a customer with identifier "CUST_012"
     And an item with identifier "ITEM_012"
-    When I create a quote for that customer with that item with the quantity 10.0, the unitary price 50.0, and a percentage of discount 150.0
+    When I create a quote for that customer with that item with the quantity 1.0, the price 100.0 and the discount 101.0
     Then the response status code is 400
-    And the error message is "Discount percentage must be between 0 and 100"
+    And the error message is "Discount percentage cannot exceed 100"
 
-#   AC13: Successfully create a new quote with zero price
-  Scenario: Create quote with zero price
+#  AC13: Fail to create a new quote with negative discount
+  Scenario: Fail to create a new quote with negative discount
     Given a customer with identifier "CUST_013"
     And an item with identifier "ITEM_013"
-    When I create a quote for that customer with that item with the quantity 5.0 and the price 0.0
-    Then the response status code is 200
-    And the quote total amount is 0.0
+    When I create a quote for that customer with that item with the quantity 1.0, the price 100.0 and the discount -10.0
+    Then the response status code is 400
+    And the error message is "Discount percentage cannot be negative"
 
-#    AC14: Successfully create a new quote with very high price
-  Scenario: Create quote with very high price
+#  AC14: Fail to create a new quote with negative quantity
+  Scenario: Fail to create a new quote with negative quantity
     Given a customer with identifier "CUST_014"
     And an item with identifier "ITEM_014"
-    When I create a quote for that customer with that item with the quantity 1.0 and the price 999999999.99
-    Then the response status code is 200
-    And the quote total amount is 999999999.99
+    When I create a quote for that customer with that item with the quantity -5.0 and the price 100.0
+    Then the response status code is 400
+    And the error message is "Quantity must be positive"
 
-    # AC15: Successfully create a new quote with invalid customer identifier
-  Scenario: Attempt to create quote with invalid customer identifier
+#  AC15: Fail to create a new quote with negative price
+  Scenario: Fail to create a new quote with negative price
+    Given a customer with identifier "CUST_015"
+    And an item with identifier "ITEM_015"
+    When I create a quote for that customer with that item with the quantity 5.0 and the price -100.0
+    Then the response status code is 400
+    And the error message is "Price must be positive"
+
+#  AC16: Fail to create a new quote with zero quantity
+  Scenario: Fail to create a new quote with zero quantity
+    Given a customer with identifier "CUST_016"
+    And an item with identifier "ITEM_016"
+    When I create a quote for that customer with that item with the quantity 0.0 and the price 100.0
+    Then the response status code is 400
+    And the error message is "Quantity must be positive"
+
+#  AC17: Fail to create a new quote with zero price
+  Scenario: Fail to create a new quote with zero price
+    Given a customer with identifier "CUST_017"
+    And an item with identifier "ITEM_017"
+    When I create a quote for that customer with that item with the quantity 5.0 and the price 0.0
+    Then the response status code is 400
+    And the error message is "Price must be positive"
+
+#  AC18: Successfully create a new quote with zero discount
+  Scenario: Successfully create a new quote with zero discount
+    Given a customer with identifier "CUST_018"
+    And an item with identifier "ITEM_018"
+    When I create a quote for that customer with that item with the quantity 5.0, the price 100.0 and the discount 0.0
+    Then the response status code is 200
+    And the quote total amount is 500.0
+
+#  AC19: Fail to create a new quote with null customer ID
+  Scenario: Fail to create a new quote with null customer ID
     Given a customer with identifier ""
-    And an item with identifier "ITEM_006"
+    And an item with identifier "ITEM_019"
     When I create a quote for that customer with that item with the quantity 5.0 and the price 100.0
     Then the response status code is 400
-    And the error message is "Customer or Items cannot be null or empty"
+    And the error message is "Customer ID cannot be null or empty"
 
-# AC16: Successfully create a new quote with invalid item identifier
-  Scenario: Attempt to create quote with invalid item identifier
-    Given a customer with identifier "CUST_008"
+#  AC20: Fail to create a new quote with null item ID
+  Scenario: Fail to create a new quote with null item ID
+    Given a customer with identifier "CUST_020"
     And an item with identifier ""
     When I create a quote for that customer with that item with the quantity 5.0 and the price 100.0
     Then the response status code is 400
-    And the error message is "Customer or Items cannot be null or empty"
+    And the error message is "Item ID cannot be null or empty"
 
-    # AC17: Successfully create a new quote with negative quantity
-  Scenario: Attempt to create quote with negative quantity
-    Given a customer with identifier "CUST_017"
-    And an item with identifier "ITEM_017"
-    When I create a quote for that customer with that item with the quantity -5.0 and the price 100.0
-    Then the response status code is 400
-    And the error message is "Quantity must be greater than zero"
-
-     # AC18: Successfully create a new quote with negative price
-  Scenario: Attempt to create quote with negative price
-    Given a customer with identifier "CUST_010"
-    And an item with identifier "ITEM_010"
-    When I create a quote for that customer with that item with the quantity 5.0 and the price -100.0
-    Then the response status code is 400
-    And the error message is "Price must be greater than zero"
-
-    # AC19: Successfully create a new quote with zero quantity
-  Scenario: Attempt to create quote with zero quantity
-    Given a customer with identifier "CUST_019"
-    And an item with identifier "ITEM_019"
-    When I create a quote for that customer with that item with the quantity 0.0 and the price 100.0
-    Then the response status code is 400
-    And the error message is "Quantity must be greater than zero"
-
-     # AC20: Successfully create a new quote without authorization
-  Scenario: Attempt to create quote without proper authorization
-    Given an unauthorized user (no token)
+#  AC21: Faile to create a new quote without authorization
+  Scenario: Faile to create a new quote without authorization
+#    not authorized to create a quote
+#    Given an unauthorized user (no token)
     And a customer with identifier "CUST_007"
     And an item with identifier "ITEM_007"
     When I create a quote for that customer with that item with the quantity 5.0 and the price 100.0

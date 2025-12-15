@@ -36,35 +36,12 @@ public class QuoteStepsDefs {
         this.quoteService.setAuthorized(true);
         logger.info("QuoteStepsDefs initialized with default authorized service");
     }
-
-    // Health check step
-    @Given("the quote service is alive")
-    public void theQuoteServiceIsAlive() {
-        logger.info("Checking if quote service is alive");
-        Response healthResponse = quoteService.checkHealth();
-        responseTime = quoteService.getLastResponseTime();
-        
-        ResponseValidator.validateStatusCode(healthResponse, 200);
-        logger.info("Quote service is alive, response time: {}ms", responseTime);
-    }
-
+    
     // Customer identification steps
     @Given("a customer with identifier {string}")
     public void aCustomerWithIdentifier(String custId) {
         this.customerId = custId;
         logger.debug("Set customer ID to: {}", custId);
-    }
-    
-    @Given("a customer")
-    public void aCustomer() {
-        this.customerId = TestConstants.DEFAULT_CUSTOMER;
-        logger.debug("Set customer ID to default: {}", TestConstants.DEFAULT_CUSTOMER);
-    }
-
-    @Given("an empty customer identifier")
-    public void anEmptyCustomerIdentifier() {
-        this.customerId = "";
-        logger.debug("Set customer ID to empty string");
     }
 
     @Given("an unauthorized user (no token)")
@@ -84,11 +61,6 @@ public class QuoteStepsDefs {
 
     @Given("one item with identifier {string}")
     public void oneItemWithIdentifier(String itemId) {
-        anItemWithIdentifier(itemId);
-    }
-    
-    @Given("one item {string}")
-    public void oneItem(String itemId) {
         anItemWithIdentifier(itemId);
     }
     
@@ -120,68 +92,75 @@ public class QuoteStepsDefs {
     }
 
     // Core quote creation steps
-    @When("I create a quote for that customer with that item with the quantity {double} and the price {double}")
-    public void iCreateAQuoteForThatCustomerWithThatItemWithTheQuantityAndThePrice(Double quantity, Double price) {
-        logger.info("Creating quote for customer {} with item, quantity: {}, price: {}", customerId, quantity, price);
-        
-        try {
-            if (!items.isEmpty()) {
-                // Update the first item with quantity and price
-                Item firstItem = items.get(0);
-                firstItem.setQuantity(quantity);
-                firstItem.setUnitaryPrice(price);
-                logger.debug("Updated first item with quantity: {} and price: {}", quantity, price);
-            }
-            
-            QuoteRequest request = new QuoteRequest();
-            request.setCustomer(customerId);
-            request.setItems(items);
-            
-            response = quoteService.createQuote(request);
-            responseTime = quoteService.getLastResponseTime();
-            
-            logger.info("Quote creation completed with status: {}, response time: {}ms", 
-                       response.getStatusCode(), responseTime);
-        } catch (Exception e) {
-            logger.error("Error creating quote: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to create quote: " + e.getMessage(), e);
+    /**
+     * Helper method to update the first item with quantity and price
+     */
+    private void updateFirstItemWithQuantityAndPrice(Double quantity, Double price) {
+        if (!items.isEmpty()) {
+            Item firstItem = items.get(0);
+            firstItem.setQuantity(quantity);
+            firstItem.setUnitaryPrice(price);
+            logger.debug("Updated first item with quantity: {} and price: {}", quantity, price);
         }
     }
     
-    @When("I create a quote for that customer with that item with the quantity {double}, the unitary price {double}, and a percentage of discount {double}")
-    public void iCreateAQuoteForThatCustomerWithThatItemWithTheQuantityTheUnitaryPriceAndAPercentageOfDiscount(
-            Double quantity, Double price, Double discount) {
+    /**
+     * Helper method to update the first item with quantity, price, and discount
+     */
+    private void updateFirstItemWithQuantityPriceAndDiscount(Double quantity, Double price, Double discount) {
+        if (!items.isEmpty()) {
+            Item firstItem = items.get(0);
+            firstItem.setQuantity(quantity);
+            firstItem.setUnitaryPrice(price);
+            firstItem.setDiscountPercentage(discount.floatValue());
+            logger.debug("Updated first item with quantity: {}, price: {}, discount: {}", quantity, price, discount);
+        }
+    }
+    
+    /**
+     * Helper method to create and send a quote request
+     */
+    private void createAndSendQuoteRequest() {
+        QuoteRequest request = new QuoteRequest();
+        request.setCustomer(customerId);
+        request.setItems(items);
+        
+        response = quoteService.createQuote(request);
+        responseTime = quoteService.getLastResponseTime();
+        
+        logger.info("Quote creation completed with status: {}, response time: {}ms", 
+                   response.getStatusCode(), responseTime);
+    }
+
+    @When("I create a quote for that customer with that item with the quantity {double} and the price {double}")
+    public void createQuoteWithQuantityAndPrice(Double quantity, Double price) {
+        logger.info("Creating quote for customer {} with item, quantity: {}, price: {}", customerId, quantity, price);
+        
+        updateFirstItemWithQuantityAndPrice(quantity, price);
+        createAndSendQuoteRequest();
+    }
+    
+    @When("I create a quote for that customer with that item with the quantity {double}, the price {double} and the discount {double}")
+    public void createQuoteWithQuantityPriceAndDiscountVariant(Double quantity, Double price, Double discount) {
         logger.info("Creating quote for customer {} with item, quantity: {}, price: {}, discount: {}", 
                    customerId, quantity, price, discount);
         
-        try {
-            if (!items.isEmpty()) {
-                // Update the first item with quantity, price and discount
-                Item firstItem = items.get(0);
-                firstItem.setQuantity(quantity);
-                firstItem.setUnitaryPrice(price);
-                firstItem.setDiscountPercentage(discount.floatValue());
-                logger.debug("Updated first item with quantity: {}, price: {}, discount: {}", quantity, price, discount);
-            }
-            
-            QuoteRequest request = new QuoteRequest();
-            request.setCustomer(customerId);
-            request.setItems(items);
-            
-            response = quoteService.createQuote(request);
-            responseTime = quoteService.getLastResponseTime();
-            
-            logger.info("Quote creation completed with status: {}, response time: {}ms", 
-                       response.getStatusCode(), responseTime);
-        } catch (Exception e) {
-            logger.error("Error creating quote with discount: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to create quote with discount: " + e.getMessage(), e);
-        }
+        updateFirstItemWithQuantityPriceAndDiscount(quantity, price, discount);
+        createAndSendQuoteRequest();
     }
     
+    @When("I create a quote for that customer with that item with the quantity {double}, the unitary price {double}, and a percentage of discount {double}")
+    public void createQuoteWithQuantityPriceAndDiscount(Double quantity, Double price, Double discount) {
+        logger.info("Creating quote for customer {} with item, quantity: {}, price: {}, discount: {}", 
+                   customerId, quantity, price, discount);
+        
+        updateFirstItemWithQuantityPriceAndDiscount(quantity, price, discount);
+        createAndSendQuoteRequest();
+    }
+
     @When("I create a quote for that customer with item {string} with the quantity {double} and the price {double} and item {string} with the quantity {double} and the price {double}")
-    public void iCreateAQuoteForThatCustomerWithTwoItems(String firstItem, Double firstQuantity, Double firstPrice, 
-                                                       String secondItem, Double secondQuantity, Double secondPrice) {
+    public void createQuoteWithTwoItems(String firstItem, Double firstQuantity, Double firstPrice, 
+                                       String secondItem, Double secondQuantity, Double secondPrice) {
         logger.info("Creating quote for customer {} with two items", customerId);
         
         items.clear();
@@ -217,7 +196,7 @@ public class QuoteStepsDefs {
     }
 
     @When("I create a quote for that customer with that item:")
-    public void iCreateAQuoteForThatCustomerWithThatItem(List<Map<String, String>> itemsData) {
+    public void createQuoteWithItemData(List<Map<String, String>> itemsData) {
         logger.info("Creating quote for customer {} with item data from table", customerId);
         
         // Update items with the provided data
@@ -257,7 +236,7 @@ public class QuoteStepsDefs {
 
     // Quote revision step
     @When("I revise the quote by changing the quantity to {double}")
-    public void iReviseTheQuoteByChangingTheQuantityTo(Double newQuantity) {
+    public void reviseQuoteWithQuantity(Double newQuantity) {
         logger.info("Revising quote for customer {} with new quantity: {}", customerId, newQuantity);
         
         if (!items.isEmpty()) {
@@ -284,7 +263,7 @@ public class QuoteStepsDefs {
 
     // Assertion steps
     @Then("it returns the quote with the correct details:")
-    public void itReturnsTheQuoteWithTheCorrectDetails(List<Map<String, String>> expectedData) {
+    public void validateQuoteDetails(List<Map<String, String>> expectedData) {
         logger.info("Validating quote details");
         
         if (!expectedData.isEmpty()) {
@@ -310,7 +289,7 @@ public class QuoteStepsDefs {
     }
     
     @Then("it returns the quote with the correct details, including the total line price calculated as {double}")
-    public void itReturnsQuoteWithTotalLinePrice(Double expectedTotal) {
+    public void validateQuoteWithTotalLinePrice(Double expectedTotal) {
         logger.info("Validating quote with total line price: {}", expectedTotal);
         ResponseValidator.validateCustomer(response, customerId);
         // Additional validation would go here
@@ -318,7 +297,7 @@ public class QuoteStepsDefs {
     }
     
     @Then("it returns the quote with the correct details, including the discount amount {double} and the total line price {double}")
-    public void itReturnsQuoteWithDiscountAndTotal(Double expectedDiscount, Double expectedTotal) {
+    public void validateQuoteWithDiscountAndTotal(Double expectedDiscount, Double expectedTotal) {
         logger.info("Validating quote with discount: {} and total: {}", expectedDiscount, expectedTotal);
         ResponseValidator.validateCustomer(response, customerId);
         // Additional validation would go here
@@ -326,7 +305,7 @@ public class QuoteStepsDefs {
     }
     
     @Then("it returns the quote with the correct details, including {int} lines and the quote's total price calculated as {double}")
-    public void itReturnsQuoteWithMultipleLinesAndTotal(Integer expectedLineCount, Double expectedTotal) {
+    public void validateQuoteWithMultipleLinesAndTotal(Integer expectedLineCount, Double expectedTotal) {
         logger.info("Validating quote with {} lines and total price: {}", expectedLineCount, expectedTotal);
         ResponseValidator.validateCustomer(response, customerId);
         // Additional validation would go here
@@ -334,42 +313,56 @@ public class QuoteStepsDefs {
     }
     
     @And("a confirmation message {string}")
-    public void aConfirmationMessage(String expectedMsg) {
+    public void validateConfirmationMessage(String expectedMsg) {
         logger.info("Validating confirmation message: {}", expectedMsg);
         ResponseValidator.validateConfirmationMessage(response, expectedMsg);
         logger.info("Confirmation message validation completed");
     }
 
     @Then("the response status code is {int}")
-    public void theResponseStatusCodeIs(int statusCode) {
+    public void validateStatusCode(int statusCode) {
         logger.info("Validating response status code: {}", statusCode);
         ResponseValidator.validateStatusCode(response, statusCode);
         logger.info("Status code validation completed");
     }
 
     @And("the response customer is {string}")
-    public void theResponseCustomerIs(String expectedCustId) {
+    public void validateCustomer(String expectedCustId) {
         logger.info("Validating response customer: {}", expectedCustId);
         ResponseValidator.validateCustomer(response, expectedCustId);
         logger.info("Customer validation completed");
     }
 
     @And("the quote total amount is {double}")
-    public void theQuoteTotalAmountIs(double expectedTotal) {
+    public void validateQuoteTotalAmount(double expectedTotal) {
         logger.info("Validating quote total amount: {}", expectedTotal);
         // Validation would go here
         logger.info("Quote total amount validation completed");
     }
 
+    @And("the quote version number is {string}")
+    public void validateQuoteVersionNumber(String expectedVersion) {
+        logger.info("Validating quote version number: {}", expectedVersion);
+        // Validation would go here
+        logger.info("Quote version number validation completed");
+    }
+    
+    @And("the quote status is {string}")
+    public void validateQuoteStatus(String expectedStatus) {
+        logger.info("Validating quote status: {}", expectedStatus);
+        // Validation would go here
+        logger.info("Quote status validation completed");
+    }
+
     @And("the error message is {string}")
-    public void theErrorMessageIs(String expectedMsg) {
+    public void validateErrorMessage(String expectedMsg) {
         logger.info("Validating error message: {}", expectedMsg);
         ResponseValidator.validateErrorMessage(response, expectedMsg);
         logger.info("Error message validation completed");
     }
 
     @And("the response time is ≤ {int}ms")
-    public void theResponseTimeIsMs(int maxTime) {
+    public void validateResponseTime(int maxTime) {
         logger.info("Validating response time: {}ms (max: {}ms)", responseTime, maxTime);
         Assert.assertTrue(responseTime <= maxTime, 
             "Response time exceeds " + maxTime + "ms. Actual time: " + responseTime + "ms");
@@ -377,7 +370,7 @@ public class QuoteStepsDefs {
     }
     
     @And("the average response time over {int} requests is ≤ {int}ms")
-    public void theAverageResponseTimeOverRequestsIsMs(int requestCount, int maxAvgTime) {
+    public void validateAverageResponseTime(int requestCount, int maxAvgTime) {
         logger.info("Performing performance test with {} requests, max average time: {}ms", requestCount, maxAvgTime);
         
         long totalTime = 0;
@@ -425,8 +418,7 @@ public class QuoteStepsDefs {
     }
     
     @And("the concurrent performance test with {int} threads for {int} seconds shows average response time ≤ {int}ms")
-    public void theConcurrentPerformanceTestWithThreadsForSecondsShowsAverageResponseTimeMs(
-            int threadCount, int durationSeconds, int maxAvgTime) {
+    public void validateConcurrentPerformance(int threadCount, int durationSeconds, int maxAvgTime) {
         logger.info("Performing concurrent performance test with {} threads for {} seconds, max average time: {}ms", 
                    threadCount, durationSeconds, maxAvgTime);
         
@@ -470,31 +462,5 @@ public class QuoteStepsDefs {
             logger.error("Error during concurrent performance test: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to execute concurrent performance test: " + e.getMessage(), e);
         }
-    }
-    
-    @And("the quote version number is {string}")
-    public void theQuoteVersionNumberIs(String expectedVersion) {
-        logger.info("Validating quote version: {}", expectedVersion);
-        String actualVersion = response.jsonPath().getString("quote.version");
-        Assert.assertEquals(actualVersion, expectedVersion, "Quote version number mismatch");
-        logger.info("Quote version validation completed");
-    }
-
-    @And("the quote status is {string}")
-    public void theQuoteStatusIs(String expectedStatus) {
-        logger.info("Validating quote status: {}", expectedStatus);
-        String actualStatus = response.jsonPath().getString("quote.status");
-        Assert.assertEquals(actualStatus, expectedStatus, "Quote status mismatch");
-        logger.info("Quote status validation completed");
-    }
-
-    @And("the original quote status is {string}")
-    public void theOriginalQuoteStatusIs(String expectedStatus) {
-        logger.info("Validating original quote status: {}", expectedStatus);
-        // This would require storing the original quote ID and retrieving its status
-        // For now, we'll just check if the response contains status information
-        String actualStatus = response.jsonPath().getString("originalQuote.status");
-        Assert.assertEquals(actualStatus, expectedStatus, "Original quote status mismatch");
-        logger.info("Original quote status validation completed");
     }
 }

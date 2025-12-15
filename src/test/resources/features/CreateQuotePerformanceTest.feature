@@ -2,7 +2,7 @@ Feature: Quote Service Performance Testing
 
   Scenario: Single request response time should be acceptable
     Given a customer with identifier "PERF_CUST_001"
-    And an item with identifier "PERF_ITEM_001"
+    And an item with identifier "PERFITEM_002"
     When I create a quote for that customer with that item with the quantity 5.0 and the price 100.0
     Then the response status code is 200
     And the response time is ≤ 2000ms
