@@ -110,7 +110,7 @@ Feature: Create New Quote
     And a confirmation message "Quote created successfully."
 
 #  AC10: Successfully create a new quote with minimum quantity value
-  Scenario: Successfully create quote with minimum quantity value (should pass)
+  Scenario: Successfully create quote with minimum quantity value
     Given a customer with identifier "CUST_010"
     And an item with identifier "ITEM_010"
     When I create a quote for that customer with that item with the quantity 0.001 and the price 100.0
@@ -198,7 +198,7 @@ Feature: Create New Quote
     And the error message is "Item ID cannot be null or empty"
 
 #  AC21: Faile to create a new quote without authorization
-  Scenario: Faile to create a new quote without authorization
+  Scenario: Fail to create a new quote without authorization
 #    not authorized to create a quote
 #    Given an unauthorized user (no token)
     And a customer with identifier "CUST_007"
