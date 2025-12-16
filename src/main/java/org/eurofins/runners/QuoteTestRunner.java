@@ -10,7 +10,7 @@ import org.testng.annotations.DataProvider;
                 "src/test/resources/features/CreateQuote.feature",
                 "src/test/resources/features/CreateQuotePerformanceTest.feature"
         },
-        glue = "org.example.stepdefs",
+        glue = "org.eurofins.stepdefs",
         plugin = {
                 "pretty",
                 "html:target/cucumber-html-report",

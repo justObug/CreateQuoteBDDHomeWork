@@ -7,7 +7,7 @@ This is a Behavior-Driven Development (BDD) testing framework for a Quote API se
 ```
 src/
 ├── main/
-│   ├── java/org/example/
+│   ├── java/org/eurofins/
 │   │   ├── constants/          # Application constants
 │   │   ├── factory/            # Factory patterns for object creation
 │   │   ├── model/              # Data models (POJOs)
@@ -17,7 +17,7 @@ src/
 │   │   └── utils/              # Utility classes
 │   └── resources/              # Configuration files
 └── test/
-    ├── java/org/example/       # Test runners
+    ├── java/org/eurofins/      # Test runners
     └── resources/features/     # Feature files
 ```
 
@@ -35,7 +35,13 @@ src/
 - `QuoteApiService` - Handles all API interactions
 - `QuoteStepsDefs` - Cucumber step definitions
 - `PerformanceTester` - Performance testing utilities
-- `ResponseValidator` - Response validation utilities
+- `ResponseValidator` - General response validation utilities
+- `QuoteResponseValidator` - Quote-specific validation utilities with BigDecimal precision
+
+### 4. Models
+- `Item` - Quote item model with BigDecimal fields for precision
+- `ItemBuilder` - Builder pattern for Item creation
+- `QuoteRequest` - Quote request model
 
 ## Running Tests
 
@@ -49,15 +55,9 @@ mvn test -Denvironment=dev
 
 # Run with specific test suite
 mvn test -DsuiteXmlFile=testng.xml
-```
 
-### Using TestNG
-```bash
-# Run main TestRunner
-java -cp target/classes:target/test-classes org.eurofins.TestRunner
-
-# Run with specific environment
-java -Denvironment=dev -cp target/classes:target/test-classes org.eurofins.TestRunner
+# Run specific test class
+mvn test -Dtest=TestRunner
 ```
 
 ## Environment Configuration
@@ -71,6 +71,14 @@ Set the environment using the `environment` system property:
 ```bash
 -Denvironment=dev
 ```
+
+## BigDecimal Precision Handling
+
+The framework now uses BigDecimal throughout for financial calculations to ensure precision:
+- All monetary values (prices, discounts, totals) use BigDecimal
+- Quantity values also use BigDecimal for consistency
+- Validation methods properly handle scientific notation in API responses
+- Precision is maintained in all calculations and comparisons
 
 ## Performance Testing
 
@@ -89,15 +97,22 @@ The framework includes comprehensive performance testing capabilities:
 
 ## Logging
 
-The framework uses Logback for logging with the following configuration:
+The framework uses SLF4J with Logback for logging with the following configuration:
 - Console output for immediate feedback
-- File logging for detailed analysis
+- File logging configured for detailed analysis (requires `logs/` directory)
 - Separate performance logs for performance testing
 - Configurable log levels per environment
 
-Log files are written to the `logs/` directory:
+Log files are configured to be written to the `logs/` directory:
 - `application.log` - General application logs
 - `performance.log` - Performance test logs
+
+Troubleshooting Logging Issues
+1. Ensure the `logs/` directory exists in the project root
+2. Verify test execution is reaching code paths with logging statements
+3. Check for package mismatches in test runners (ensure `glue` parameter matches step definition package)
+4. Validate logback.xml configuration in both source and target directories
+5. Check console output for any logging-related
 
 ## Dependencies
 
@@ -115,3 +130,4 @@ Log files are written to the `logs/` directory:
 4. **Configuration Management** - Environment-specific configuration support
 5. **Performance Monitoring** - Built-in performance testing capabilities
 6. **Code Reusability** - Modular design for easy maintenance and extension
+7. **Financial Precision** - BigDecimal usage for accurate monetary calculations

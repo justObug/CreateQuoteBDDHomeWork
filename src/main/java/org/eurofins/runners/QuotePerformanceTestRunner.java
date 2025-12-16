@@ -7,7 +7,7 @@ import org.testng.annotations.DataProvider;
 
 @CucumberOptions(
         features = "src/test/resources/features/CreateQuotePerformanceTest.feature",
-        glue = "org.example.stepdefs",
+        glue = "org.eurofins.stepdefs",
         plugin = {
                 "pretty",
                 "html:target/cucumber-performance-html-report",
