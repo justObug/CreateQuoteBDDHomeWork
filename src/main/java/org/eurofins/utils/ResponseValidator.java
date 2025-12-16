@@ -1,4 +1,4 @@
-package org.example.utils;
+package org.eurofins.utils;
 
 import io.restassured.response.Response;
 import org.testng.Assert;
@@ -44,7 +44,16 @@ public class ResponseValidator {
     public static void validateCustomer(Response response, String expectedCustomer) {
         try {
             String actualCustomer = response.jsonPath().getString("quote.customer");
+            
+            // Log the actual response for debugging
+            logger.debug("Full response: {}", response.asString());
             logger.debug("Validating customer. Expected: {}, Actual: {}", expectedCustomer, actualCustomer);
+            
+            // Handle case where actualCustomer might be null
+            if (actualCustomer == null) {
+                throw new AssertionError("Customer identifier not found in response. Expected: " + expectedCustomer);
+            }
+            
             Assert.assertEquals(actualCustomer, expectedCustomer, "Response customer identifier mismatch");
         } catch (AssertionError e) {
             logger.error("Customer validation failed: {}", e.getMessage());

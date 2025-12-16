@@ -1,9 +1,9 @@
-package org.example.utils;
+package org.eurofins.utils;
 
-import org.example.service.QuoteApiService;
-import org.example.model.QuoteRequest;
-import org.example.model.Item;
-import org.example.model.ItemBuilder;
+import org.eurofins.service.QuoteApiService;
+import org.eurofins.model.QuoteRequest;
+import org.eurofins.model.Item;
+import org.eurofins.model.ItemBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 /**
@@ -204,9 +203,9 @@ public class PerformanceTester {
         for (int i = 0; i < itemCount; i++) {
             Item item = ItemBuilder.builder()
                 .item("ITEM" + i)
-                .quantity(1 + i)
-                .unitaryPrice(100 + (i * 10))
-                .discountPercentage(i * 5)
+                .quantity(new java.math.BigDecimal(String.valueOf(1 + i)))
+                .unitaryPrice(new java.math.BigDecimal(String.valueOf(100 + (i * 10))))
+                .discountPercentage(new java.math.BigDecimal(String.valueOf(i * 5)))
                 .build();
             items.add(item);
         }

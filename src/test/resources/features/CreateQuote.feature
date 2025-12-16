@@ -52,7 +52,7 @@ Feature: Create New Quote
     Given a customer with identifier "CUST_006"
     And one item with identifier "ITEM_006"
     When I create a quote for that customer with that item with the quantity 2.55, the unitary price 10.5, and a percentage of discount 0.0
-    Then it returns the quote with the correct details, including the discount amount 0.0 and the total line price 26.78
+    Then it returns the quote with the correct details, including the discount amount 0.0 and the total line price 26.775
     And a confirmation message "Quote created successfully."
 
   # AC7: Quote version number auto-upgrade (creating revised quotes)
@@ -106,7 +106,7 @@ Feature: Create New Quote
     Given a customer with identifier "CUST_009"
     And an item with identifier "ITEM_001"
     When I create a quote for that customer with that item with the quantity 0.123456789, the unitary price 9.876543210123456, and a percentage of discount 0
-    Then it returns the quote with the correct details, including the total line price calculated as 1.219323603509262
+    Then it returns the quote with the correct details, including the total line price calculated as 1.2193236
     And a confirmation message "Quote created successfully."
 
 #  AC10: Successfully create a new quote with minimum quantity value
@@ -123,7 +123,7 @@ Feature: Create New Quote
     And an item with identifier "ITEM_011"
     When I create a quote for that customer with that item with the quantity 999999.999 and the price 100.0
     Then the response status code is 200
-    And the quote total amount is 99999999.9
+    And the quote total amount is "99999999.9"
 
 #  AC12: Fail to create a new quote with invalid discount (>100%)
   Scenario: Fail to create a new quote with invalid discount (>100%)

@@ -1,4 +1,4 @@
-package org.example.model;
+package org.eurofins.model;
 
 import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;

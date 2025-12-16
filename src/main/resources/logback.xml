@@ -44,7 +44,7 @@
     </appender>
 
     <!-- Logger for performance testing -->
-    <logger name="org.example.utils.PerformanceTester" level="INFO" additivity="false">
+    <logger name="org.eurofins.utils.PerformanceTester" level="INFO" additivity="false">
         <appender-ref ref="PERFORMANCE" />
         <appender-ref ref="STDOUT" />
     </logger>

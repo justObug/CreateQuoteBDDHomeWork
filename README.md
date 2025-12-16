@@ -54,10 +54,10 @@ mvn test -DsuiteXmlFile=testng.xml
 ### Using TestNG
 ```bash
 # Run main TestRunner
-java -cp target/classes:target/test-classes org.example.TestRunner
+java -cp target/classes:target/test-classes org.eurofins.TestRunner
 
 # Run with specific environment
-java -Denvironment=dev -cp target/classes:target/test-classes org.example.TestRunner
+java -Denvironment=dev -cp target/classes:target/test-classes org.eurofins.TestRunner
 ```
 
 ## Environment Configuration

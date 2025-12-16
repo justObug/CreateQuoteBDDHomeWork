@@ -1,22 +1,24 @@
-package org.example.stepdefs;
+package org.eurofins.stepdefs;
 
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
-import org.example.constants.TestConstants;
-import org.example.factory.QuoteServiceFactory;
-import org.example.model.Item;
-import org.example.model.ItemBuilder;
-import org.example.model.QuoteRequest;
-import org.example.service.QuoteApiService;
-import org.example.utils.PerformanceTester;
-import org.example.utils.ResponseValidator;
+import org.eurofins.constants.TestConstants;
+import org.eurofins.factory.QuoteServiceFactory;
+import org.eurofins.model.Item;
+import org.eurofins.model.ItemBuilder;
+import org.eurofins.model.QuoteRequest;
+import org.eurofins.service.QuoteApiService;
+import org.eurofins.utils.PerformanceTester;
+import org.eurofins.utils.QuoteResponseValidator;
+import org.eurofins.utils.ResponseValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -98,8 +100,8 @@ public class QuoteStepsDefs {
     private void updateFirstItemWithQuantityAndPrice(Double quantity, Double price) {
         if (!items.isEmpty()) {
             Item firstItem = items.get(0);
-            firstItem.setQuantity(quantity);
-            firstItem.setUnitaryPrice(price);
+            firstItem.setQuantity(new BigDecimal(String.valueOf(quantity)));
+            firstItem.setUnitaryPrice(new BigDecimal(String.valueOf(price)));
             logger.debug("Updated first item with quantity: {} and price: {}", quantity, price);
         }
     }
@@ -110,9 +112,9 @@ public class QuoteStepsDefs {
     private void updateFirstItemWithQuantityPriceAndDiscount(Double quantity, Double price, Double discount) {
         if (!items.isEmpty()) {
             Item firstItem = items.get(0);
-            firstItem.setQuantity(quantity);
-            firstItem.setUnitaryPrice(price);
-            firstItem.setDiscountPercentage(discount.floatValue());
+            firstItem.setQuantity(new BigDecimal(String.valueOf(quantity)));
+            firstItem.setUnitaryPrice(new BigDecimal(String.valueOf(price)));
+            firstItem.setDiscountPercentage(new BigDecimal(String.valueOf(discount)));
             logger.debug("Updated first item with quantity: {}, price: {}, discount: {}", quantity, price, discount);
         }
     }
@@ -168,16 +170,16 @@ public class QuoteStepsDefs {
         // Create first item
         Item first = ItemBuilder.builder()
                 .item(firstItem)
-                .quantity(firstQuantity)
-                .unitaryPrice(firstPrice)
+                .quantity(new java.math.BigDecimal(firstQuantity.toString()))
+                .unitaryPrice(new java.math.BigDecimal(firstPrice.toString()))
                 .build();
         items.add(first);
         
         // Create second item
         Item second = ItemBuilder.builder()
                 .item(secondItem)
-                .quantity(secondQuantity)
-                .unitaryPrice(secondPrice)
+                .quantity(new java.math.BigDecimal(secondQuantity.toString()))
+                .unitaryPrice(new java.math.BigDecimal(secondPrice.toString()))
                 .build();
         items.add(second);
         
@@ -205,19 +207,19 @@ public class QuoteStepsDefs {
             Item item = items.get(i);
             
             if (itemData.containsKey(TestConstants.QUANTITY_FIELD)) {
-                double quantity = Double.parseDouble(itemData.get(TestConstants.QUANTITY_FIELD));
+                BigDecimal quantity = new BigDecimal(itemData.get(TestConstants.QUANTITY_FIELD));
                 item.setQuantity(quantity);
                 logger.debug("Updated item {} quantity to: {}", i, quantity);
             }
             
             if (itemData.containsKey(TestConstants.UNITARY_PRICE_FIELD)) {
-                double price = Double.parseDouble(itemData.get(TestConstants.UNITARY_PRICE_FIELD));
+                BigDecimal price = new BigDecimal(itemData.get(TestConstants.UNITARY_PRICE_FIELD));
                 item.setUnitaryPrice(price);
                 logger.debug("Updated item {} unitary price to: {}", i, price);
             }
             
             if (itemData.containsKey(TestConstants.DISCOUNT_PERCENTAGE_FIELD)) {
-                float discount = Float.parseFloat(itemData.get(TestConstants.DISCOUNT_PERCENTAGE_FIELD));
+                BigDecimal discount = new BigDecimal(itemData.get(TestConstants.DISCOUNT_PERCENTAGE_FIELD));
                 item.setDiscountPercentage(discount);
                 logger.debug("Updated item {} discount percentage to: {}", i, discount);
             }
@@ -241,12 +243,7 @@ public class QuoteStepsDefs {
         
         if (!items.isEmpty()) {
             Item firstItem = items.get(0);
-            firstItem.setQuantity(newQuantity);
-            
-            // Ensure we have a unitary price
-            if (firstItem.getUnitaryPrice() == 0.0) {
-                firstItem.setUnitaryPrice(100.0); // Default value
-            }
+            firstItem.setQuantity(new BigDecimal(String.valueOf(newQuantity)));
             logger.debug("Updated first item quantity to: {}", newQuantity);
         }
         
@@ -288,11 +285,19 @@ public class QuoteStepsDefs {
         logger.info("Quote details validation completed successfully");
     }
     
+    @Then("it returns the quote with the correct details, including the total line price calculated as {string}")
+    public void validateQuoteWithTotalLinePricePrecise(String expectedTotal) {
+        logger.info("Validating quote with precise total line price: {}", expectedTotal);
+        ResponseValidator.validateCustomer(response, customerId);
+        QuoteResponseValidator.validateQuoteTotalPricePrecise(response, new BigDecimal(expectedTotal));
+        logger.info("Quote validation with precise total line price completed");
+    }
+    
     @Then("it returns the quote with the correct details, including the total line price calculated as {double}")
     public void validateQuoteWithTotalLinePrice(Double expectedTotal) {
         logger.info("Validating quote with total line price: {}", expectedTotal);
         ResponseValidator.validateCustomer(response, customerId);
-        // Additional validation would go here
+        QuoteResponseValidator.validateQuoteTotalPrice(response, expectedTotal);
         logger.info("Quote validation with total line price completed");
     }
     
@@ -300,7 +305,8 @@ public class QuoteStepsDefs {
     public void validateQuoteWithDiscountAndTotal(Double expectedDiscount, Double expectedTotal) {
         logger.info("Validating quote with discount: {} and total: {}", expectedDiscount, expectedTotal);
         ResponseValidator.validateCustomer(response, customerId);
-        // Additional validation would go here
+        QuoteResponseValidator.validateQuoteDiscountAmount(response, expectedDiscount);
+        QuoteResponseValidator.validateQuoteTotalPrice(response, expectedTotal);
         logger.info("Quote validation with discount and total completed");
     }
     
@@ -308,7 +314,8 @@ public class QuoteStepsDefs {
     public void validateQuoteWithMultipleLinesAndTotal(Integer expectedLineCount, Double expectedTotal) {
         logger.info("Validating quote with {} lines and total price: {}", expectedLineCount, expectedTotal);
         ResponseValidator.validateCustomer(response, customerId);
-        // Additional validation would go here
+        QuoteResponseValidator.validateQuoteLineCount(response, expectedLineCount);
+        QuoteResponseValidator.validateQuoteTotalPrice(response, expectedTotal);
         logger.info("Quote validation with multiple lines and total completed");
     }
     
@@ -333,24 +340,31 @@ public class QuoteStepsDefs {
         logger.info("Customer validation completed");
     }
 
+    @And("the quote total amount is {string}")
+    public void validateQuoteTotalAmountPrecise(String expectedTotal) {
+        logger.info("Validating quote total amount: {}", expectedTotal);
+        QuoteResponseValidator.validateQuoteTotalPricePrecise(response, new BigDecimal(expectedTotal));
+        logger.info("Quote total amount validation completed");
+    }
+
     @And("the quote total amount is {double}")
     public void validateQuoteTotalAmount(double expectedTotal) {
         logger.info("Validating quote total amount: {}", expectedTotal);
-        // Validation would go here
+        QuoteResponseValidator.validateQuoteTotalPrice(response, expectedTotal);
         logger.info("Quote total amount validation completed");
     }
 
     @And("the quote version number is {string}")
     public void validateQuoteVersionNumber(String expectedVersion) {
         logger.info("Validating quote version number: {}", expectedVersion);
-        // Validation would go here
+        QuoteResponseValidator.validateQuoteStringField(response, "revision", expectedVersion);
         logger.info("Quote version number validation completed");
     }
     
     @And("the quote status is {string}")
     public void validateQuoteStatus(String expectedStatus) {
         logger.info("Validating quote status: {}", expectedStatus);
-        // Validation would go here
+        QuoteResponseValidator.validateQuoteStringField(response, "status", expectedStatus);
         logger.info("Quote status validation completed");
     }
 
@@ -385,8 +399,8 @@ public class QuoteStepsDefs {
                 // Add a sample item
                 Item item = ItemBuilder.builder()
                     .item("PERF_ITEM_" + i)
-                    .quantity(1.0)
-                    .unitaryPrice(100.0)
+                    .quantity(new java.math.BigDecimal("1.0"))
+                    .unitaryPrice(new java.math.BigDecimal("100.0"))
                     .build();
                 
                 List<Item> itemList = new ArrayList<>();
@@ -430,8 +444,8 @@ public class QuoteStepsDefs {
                 
                 Item item = ItemBuilder.builder()
                     .item("CONCURRENT_TEST_ITEM")
-                    .quantity(1.0)
-                    .unitaryPrice(100.0)
+                    .quantity(new java.math.BigDecimal("1.0"))
+                    .unitaryPrice(new java.math.BigDecimal("100.0"))
                     .build();
                 
                 List<Item> itemList = new ArrayList<>();
@@ -463,4 +477,46 @@ public class QuoteStepsDefs {
             throw new RuntimeException("Failed to execute concurrent performance test: " + e.getMessage(), e);
         }
     }
+    
+    /**
+     * Helper method to update item properties from data map
+     * @param itemData Data map containing item properties
+     * @param propertyName Name of the property to update
+     * @param updateFunction Function to apply the update
+     * @param logFunction Function to log the update
+     */
+    private void updateItemProperty(Map<String, String> itemData, String propertyName, 
+                                  java.util.function.Consumer<BigDecimal> updateFunction,
+                                  java.util.function.BiConsumer<String, BigDecimal> logFunction) {
+        if (itemData.containsKey(propertyName)) {
+            try {
+                BigDecimal value = new BigDecimal(itemData.get(propertyName));
+                updateFunction.accept(value);
+                logFunction.accept(propertyName, value);
+            } catch (NumberFormatException e) {
+                logger.warn("Invalid numeric format for property {}: {}", propertyName, itemData.get(propertyName));
+            }
+        }
+    }
+    
+    /**
+     * Helper method to update an item from data map
+     * @param itemData Data map containing item properties
+     * @param item Item to update
+     * @param index Index of the item (for logging)
+     */
+    private void updateItemFromData(Map<String, String> itemData, Item item, int index) {
+        updateItemProperty(itemData, TestConstants.QUANTITY_FIELD, 
+            value -> item.setQuantity(value), 
+            (prop, val) -> logger.debug("Updated item {} quantity to: {}", index, val));
+            
+        updateItemProperty(itemData, TestConstants.UNITARY_PRICE_FIELD, 
+            value -> item.setUnitaryPrice(value), 
+            (prop, val) -> logger.debug("Updated item {} unitary price to: {}", index, val));
+            
+        updateItemProperty(itemData, TestConstants.DISCOUNT_PERCENTAGE_FIELD, 
+            value -> item.setDiscountPercentage(value), 
+            (prop, val) -> logger.debug("Updated item {} discount percentage to: {}", index, val));
+    }
+
 }

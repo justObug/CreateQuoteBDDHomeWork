@@ -1,4 +1,4 @@
-package org.example.constants;
+package org.eurofins.constants;
 
 /**
  * Constants used throughout the test framework

@@ -1,4 +1,4 @@
-package org.example.runners;
+package org.eurofins.runners;
 
 
 import io.cucumber.testng.AbstractTestNGCucumberTests;

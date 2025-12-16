@@ -1,6 +1,6 @@
-package org.example.factory;
+package org.eurofins.factory;
 
-import org.example.service.QuoteApiService;
+import org.eurofins.service.QuoteApiService;
 
 /**
  * Factory class for creating QuoteApiService instances

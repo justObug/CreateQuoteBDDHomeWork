@@ -1,9 +1,9 @@
-package org.example;
+package org.eurofins;
 
-import org.example.runners.QuoteTestRunner;
-import org.example.runners.QuotePerformanceTestRunner;
+import org.eurofins.runners.QuoteTestRunner;
+import org.eurofins.runners.QuotePerformanceTestRunner;
 import org.testng.TestNG;
-import org.testng.xml.XmlSuite;
+
 import java.util.ArrayList;
 import java.util.List;
 

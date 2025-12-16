@@ -1,6 +1,6 @@
-package org.example.utils;
+package org.eurofins.utils;
 
-import org.example.constants.TestConstants;
+import org.eurofins.constants.TestConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

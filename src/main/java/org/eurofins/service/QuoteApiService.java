@@ -1,11 +1,11 @@
-package org.example.service;
+package org.eurofins.service;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import org.example.constants.TestConstants;
-import org.example.model.QuoteRequest;
-import org.example.utils.ConfigurationUtils;
+import org.eurofins.constants.TestConstants;
+import org.eurofins.model.QuoteRequest;
+import org.eurofins.utils.ConfigurationUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;

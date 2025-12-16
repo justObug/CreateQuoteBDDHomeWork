@@ -3,12 +3,12 @@
 <suite name="QuoteCreationTestSuite" parallel="tests" thread-count="2">
     <test name="CreateQuoteFunctionalTests">
         <classes>
-            <class name="org.example.runners.QuoteTestRunner"/>
+            <class name="org.eurofins.runners.QuoteTestRunner"/>
         </classes>
     </test>
     <test name="CreateQuotePerformanceTests">
         <classes>
-            <class name="org.example.runners.QuotePerformanceTestRunner"/>
+            <class name="org.eurofins.runners.QuotePerformanceTestRunner"/>
         </classes>
     </test>
 </suite>

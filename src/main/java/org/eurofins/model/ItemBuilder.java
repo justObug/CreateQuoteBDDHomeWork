@@ -1,13 +1,15 @@
-package org.example.model;
+package org.eurofins.model;
+
+import java.math.BigDecimal;
 
 /**
  * Builder class for creating Item objects
  */
 public class ItemBuilder {
     private String item = "DEFAULT_ITEM";
-    private double quantity = 0.0;
-    private double unitaryPrice = 0.0;
-    private float discountPercentage = 0.0f;
+    private BigDecimal quantity = BigDecimal.ZERO;
+    private BigDecimal unitaryPrice = BigDecimal.ZERO;
+    private BigDecimal discountPercentage = BigDecimal.ZERO;
     
     public static ItemBuilder builder() {
         return new ItemBuilder();
@@ -19,16 +21,26 @@ public class ItemBuilder {
     }
     
     public ItemBuilder quantity(double quantity) {
+        this.quantity = new BigDecimal(String.valueOf(quantity));
+        return this;
+    }
+    
+    public ItemBuilder quantity(BigDecimal quantity) {
         this.quantity = quantity;
         return this;
     }
     
     public ItemBuilder unitaryPrice(double unitaryPrice) {
+        this.unitaryPrice = new BigDecimal(String.valueOf(unitaryPrice));
+        return this;
+    }
+    
+    public ItemBuilder unitaryPrice(BigDecimal unitaryPrice) {
         this.unitaryPrice = unitaryPrice;
         return this;
     }
     
-    public ItemBuilder discountPercentage(float discountPercentage) {
+    public ItemBuilder discountPercentage(BigDecimal discountPercentage) {
         this.discountPercentage = discountPercentage;
         return this;
     }
